@@ -5,7 +5,7 @@ from modules.deck import Deck
 st.set_page_config(
    layout="wide",
 )
-card_width=95
+card_width=105
 
 
 number_of_decks = st.number_input("Number of decks", min_value=1, max_value=10, value=1)
