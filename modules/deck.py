@@ -9,6 +9,7 @@ class Deck:
         self.cards = []
         self.create(self.number_of_decks)
         self.mano = []
+        self.selected = False
 
     def __repr__(self):
         return 'Game deck has {} cards remaining'.format(len(self.cards))
@@ -24,14 +25,15 @@ class Deck:
     def draw(self):
         if len(self.cards) == 0:
             return False
-        
-        while len(self.mano) <= 7:
-            drawn_card = self.cards[0]
-            self.mano.append(drawn_card)
-            self.cards.remove(self.cards[0])
+        drawn_card = self.cards[0] 
+        self.cards.remove(self.cards[0])  
         print(len(self.cards))
         return drawn_card
     
+    #def discard(self):
+
+
+
 
     def reset(self):
         self.cards = []
