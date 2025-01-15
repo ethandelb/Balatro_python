@@ -9,7 +9,7 @@ class Deck:
         self.cards = []
         self.create(self.number_of_decks)
         self.mano = []
-        self.selected = False
+        
 
     def __repr__(self):
         return 'Game deck has {} cards remaining'.format(len(self.cards))
