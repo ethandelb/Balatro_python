@@ -20,18 +20,18 @@ deck = Deck(number_of_decks)
 start_button = st.button("Start")
 if start_button:
     deck.shuffle()
-    # st.image([card.image for card in deck.mano], width=card_width )
-    # while len(deck.mano) < carte_mano:
-    #     carte_mano = str(carte_mano)
-    #     st.button("carta" + carte_mano)
-    #     carte_mano = int(carte_mano)
-    #     carte_mano = carte_mano - 1
 
-columns = st.columns(8)
-with columns[0]:
-    card = deck.draw()
-    st.image(card.image,use_container_width=True)
-    st.button("carta 1",use_container_width=True)
+columns = st.columns(carte_mano)
+n=0
+while n < carte_mano:
+    with columns[n]:
+       card = deck.draw()
+       st.image(card.image,use_container_width=True)
+       card_button = st.button("carta " + str(n+1),use_container_width=True) 
+    n = n +1
+    
+
+
 
     
 
