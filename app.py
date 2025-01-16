@@ -7,6 +7,8 @@ st.set_page_config(layout="wide",)
 
 card_width=105
 carte_mano = 8
+massimo_mani = 5
+massimo_scarti = 5
 #Scarti = 4
 #Mani_giocabili = 5
 #grandezza_mano = 5
@@ -14,25 +16,40 @@ carte_mano = 8
 if 'deck' not in st.session_state:
     number_of_decks = 1
     st.session_state['deck'] = Deck(number_of_decks)
+    st.session_state['deck'].shuffle()
     st.session_state['drawn_cards'] = []
     st.session_state['selected_cards'] = []
     st.session_state['carte_mano'] = []
     st.session_state['result'] = str()
     st.session_state['punteggio'] = int()
+    st.session_state['scarti_rimanenti'] = int(5)
+    st.session_state['mani_rimanenti'] = int(5)
+    st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
 
-col1,col2,col3,col4 = st.columns([1,1,1.5,1],vertical_alignment="center")
+col1,col2,col3,col4,col5 = st.columns([1,1,1,1,1],vertical_alignment="center")
 with col1:
     if st.button("Start",use_container_width=True):
+        number_of_decks = 1
+        st.session_state['deck'] = Deck(number_of_decks)
         st.session_state['deck'].shuffle()
         st.session_state['drawn_cards'] = []
         st.session_state['selected_cards'] = []
         st.session_state['carte_mano'] = []
+        st.session_state['result'] = str()
+        st.session_state['punteggio'] = int()
+        st.session_state['scarti_rimanenti'] = int(5)
+        st.session_state['mani_rimanenti'] = int(5)
+        st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
 with col2:
     subcol1,scubcol2 =st.columns([0.5,0.5])
     with subcol1:
         Scarta = st.button("scarta",type='primary',use_container_width=True)
     with scubcol2:
         Hand = st.button("Butta mano",use_container_width=True)
+with col5:
+    st.header("Mani rimanenti: " + str(st.session_state['mani_rimanenti']))
+    st.header("Scarti rimanenti: " + str(st.session_state['scarti_rimanenti']))
+    st.header("Carte rimanenti "+str(st.session_state['carte_rimanenti']))
 st.divider()
 
 columns = st.columns(carte_mano)
@@ -60,12 +77,13 @@ for i in range(carte_mano):
                 
 with col2:
     if Scarta:
-        for card in st.session_state['selected_cards']:
-            if card in st.session_state['drawn_cards']:
-                st.session_state['drawn_cards'].remove(card)
-        st.session_state['selected_cards'] = []
-        time.sleep(1)
-        st.rerun()
+        if st.session_state['scarti_rimanenti'] > 0:
+            for card in st.session_state['selected_cards']:
+                if card in st.session_state['drawn_cards']:
+                    st.session_state['drawn_cards'].remove(card)
+            st.session_state['selected_cards'] = []
+            st.session_state['scarti_rimanenti'] = st.session_state.get('scarti_rimanenti',0) -1
+            st.rerun()
 
 #Riconoscimento mani poker
 def riconoscimento_mani(carte_mano):
@@ -127,16 +145,21 @@ def riconoscimento_mani(carte_mano):
 
 with col3:
     if Hand:
-        for card in st.session_state['selected_cards']:
-            if card in st.session_state['drawn_cards']:
-                st.session_state['drawn_cards'].remove(card)
-                st.session_state['carte_mano'].append(card)
-        st.session_state['selected_cards'] = []
-        riconoscimento_mani(st.session_state['carte_mano'])
-        st.session_state['carte_mano'] = []
-        st.header(st.session_state['result'])
-        time.sleep(1)
-        st.rerun()
+        if st.session_state['mani_rimanenti'] > 0:
+            for card in st.session_state['selected_cards']:
+                if card in st.session_state['drawn_cards']:
+                    st.session_state['drawn_cards'].remove(card)
+                    st.session_state['carte_mano'].append(card)
+            st.session_state['selected_cards'] = []
+            riconoscimento_mani(st.session_state['carte_mano'])
+            st.session_state['carte_mano'] = []
+            st.header(st.session_state['result'])
+            st.session_state['mani_rimanenti'] = st.session_state.get('mani_rimanenti',0) -1
+            st.session_state['result'] = str()
+            time.sleep(1)
+            st.rerun()
+        else:
+            st.header("Non hai più mani inizia una nuova partita")
 with col4:
     st.header("Punteggio:")
     st.header(str(st.session_state['punteggio']))
