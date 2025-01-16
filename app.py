@@ -50,6 +50,20 @@ with col5:
     st.header("Mani rimanenti: " + str(st.session_state['mani_rimanenti']))
     st.header("Scarti rimanenti: " + str(st.session_state['scarti_rimanenti']))
     st.header("Carte rimanenti "+str(st.session_state['carte_rimanenti']))
+    if st.session_state['carte_rimanenti'] <= 0:
+        st.header("Hai finito le carte!")
+        number_of_decks = 1
+        st.session_state['deck'] = Deck(number_of_decks)
+        st.session_state['deck'].shuffle()
+        st.session_state['drawn_cards'] = []
+        st.session_state['selected_cards'] = []
+        st.session_state['carte_mano'] = []
+        st.session_state['result'] = str()
+        st.session_state['punteggio'] = int()
+        st.session_state['scarti_rimanenti'] = int(5)
+        st.session_state['mani_rimanenti'] = int(5)
+        st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
+
 st.divider()
 
 columns = st.columns(carte_mano)
@@ -81,6 +95,7 @@ with col2:
             for card in st.session_state['selected_cards']:
                 if card in st.session_state['drawn_cards']:
                     st.session_state['drawn_cards'].remove(card)
+            st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
             st.session_state['selected_cards'] = []
             st.session_state['scarti_rimanenti'] = st.session_state.get('scarti_rimanenti',0) -1
             st.rerun()
@@ -156,6 +171,7 @@ with col3:
             st.header(st.session_state['result'])
             st.session_state['mani_rimanenti'] = st.session_state.get('mani_rimanenti',0) -1
             st.session_state['result'] = str()
+            st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
             time.sleep(1)
             st.rerun()
         else:
@@ -163,6 +179,9 @@ with col3:
 with col4:
     st.header("Punteggio:")
     st.header(str(st.session_state['punteggio']))
+
+
+    
     
     
 
