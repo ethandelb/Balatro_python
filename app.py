@@ -1,6 +1,7 @@
 import streamlit as st
 from modules.card import Card
 from modules.deck import Deck
+import time
 
 st.set_page_config(layout="wide",)
 
@@ -11,7 +12,7 @@ carte_mano = 8
 #grandezza_mano = 5
 
 if 'deck' not in st.session_state:
-    number_of_decks = st.number_input("Number of decks", min_value=1, max_value=10, value=1)
+    number_of_decks = 1
     st.session_state['deck'] = Deck(number_of_decks)
     st.session_state['drawn_cards'] = []
     st.session_state['selected_cards'] = []
@@ -19,15 +20,20 @@ if 'deck' not in st.session_state:
     st.session_state['result'] = str()
     st.session_state['punteggio'] = int()
 
-start_button = st.button("Start")
-if start_button:
-    st.session_state['deck'].shuffle()
-    st.session_state['drawn_cards'] = []
-    st.session_state['selected_cards'] = []
-    st.session_state['carte_mano'] = []
-
-Scarta = st.button("scarta")
-Hand = st.button("Butta mano")
+col1,col2,col3,col4 = st.columns([1,1,1.5,1],vertical_alignment="center")
+with col1:
+    if st.button("Start",use_container_width=True):
+        st.session_state['deck'].shuffle()
+        st.session_state['drawn_cards'] = []
+        st.session_state['selected_cards'] = []
+        st.session_state['carte_mano'] = []
+with col2:
+    subcol1,scubcol2 =st.columns([0.5,0.5])
+    with subcol1:
+        Scarta = st.button("scarta",type='primary',use_container_width=True)
+    with scubcol2:
+        Hand = st.button("Butta mano",use_container_width=True)
+st.divider()
 
 columns = st.columns(carte_mano)
 if 'drawn_cards' not in st.session_state:
@@ -52,13 +58,14 @@ for i in range(carte_mano):
         if card.selected == True:
             st.write("Carta selezionata")
                 
-
-if Scarta:
-    for card in st.session_state['selected_cards']:
-        if card in st.session_state['drawn_cards']:
-            st.session_state['drawn_cards'].remove(card)
-    st.session_state['selected_cards'] = []
-
+with col2:
+    if Scarta:
+        for card in st.session_state['selected_cards']:
+            if card in st.session_state['drawn_cards']:
+                st.session_state['drawn_cards'].remove(card)
+        st.session_state['selected_cards'] = []
+        time.sleep(1)
+        st.rerun()
 
 #Riconoscimento mani poker
 def riconoscimento_mani(carte_mano):
@@ -114,19 +121,25 @@ def riconoscimento_mani(carte_mano):
 
 
     #Debug
-    st.write(f"Flush: {is_flush}, Straight: {is_straight},Royal: {is_royal}, Four of a kind {is_pair}")
-    st.write(f"Punteggio attuale: {st.session_state.get('punteggio', 0)}")
+    #st.write(f"Flush: {is_flush}, Straight: {is_straight},Royal: {is_royal}, Four of a kind {is_pair}")
+    #st.write(f"Punteggio attuale: {st.session_state.get('punteggio', 0)}")
     #st.write(f"Tipo di punteggio: {type(st.session_state.get('punteggio', 0))}")
 
-if Hand:
-    for card in st.session_state['selected_cards']:
-        if card in st.session_state['drawn_cards']:
-            st.session_state['drawn_cards'].remove(card)
-            st.session_state['carte_mano'].append(card)
-    st.session_state['selected_cards'] = []
-    riconoscimento_mani(st.session_state['carte_mano'])
-    st.session_state['carte_mano'] = []
-    st.markdown(st.session_state['result']+"+"+ str(st.session_state['punteggio']))
+with col3:
+    if Hand:
+        for card in st.session_state['selected_cards']:
+            if card in st.session_state['drawn_cards']:
+                st.session_state['drawn_cards'].remove(card)
+                st.session_state['carte_mano'].append(card)
+        st.session_state['selected_cards'] = []
+        riconoscimento_mani(st.session_state['carte_mano'])
+        st.session_state['carte_mano'] = []
+        st.header(st.session_state['result'])
+        time.sleep(1)
+        st.rerun()
+with col4:
+    st.header("Punteggio:")
+    st.header(str(st.session_state['punteggio']))
     
     
 
