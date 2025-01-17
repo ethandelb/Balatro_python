@@ -1,6 +1,7 @@
 import random
 from modules.card import Card
 suits = ('Spades', 'Hearts', 'Clubs', 'Diamonds')
+tipi_mazzi = ("Verde","Rosso","Giallo","Blu")
 
 
 class Deck:
@@ -9,6 +10,7 @@ class Deck:
         self.cards = []
         self.create(self.number_of_decks)
         self.mano = []
+        self.tipo_mazzo = (tipi_mazzi)
         
 
     def __repr__(self):
@@ -30,7 +32,7 @@ class Deck:
         print(len(self.cards))
         return drawn_card
     
-    #def discard(self):
+    
 
 
 

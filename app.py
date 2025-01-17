@@ -9,6 +9,7 @@ card_width=105
 carte_mano = 8
 massimo_mani = 5
 massimo_scarti = 5
+tipi_mazzi = ("Verde","Rosso","Giallo","Blu")
 #Scarti = 4
 #Mani_giocabili = 5
 #grandezza_mano = 5
@@ -26,6 +27,29 @@ if 'deck' not in st.session_state:
     st.session_state['mani_rimanenti'] = int(5)
     st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
 
+if "num_mazzo" not in st.session_state:
+    st.session_state.num_mazzo = 0
+    st.session_state.tipo_mazzo = ["Mazzo blu", "Mazzo verde", "Mazzo giallo", "Mazzo rosso"]
+
+
+@st.dialog("Impostazioni partita")
+def show_options():
+    st.markdown("Scegli un mazzo: ")
+    st.write(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
+    if st.button("->"):
+        if st.session_state.num_mazzo < len(st.session_state.tipo_mazzo) - 1:
+            st.session_state.num_mazzo += 1
+            
+    if st.button("<-"):
+         if st.session_state.num_mazzo > 0:
+            st.session_state.num_mazzo -= 1
+           
+        
+
+    
+    st.divider()
+
+
 col1,col2,col3,col4,col5 = st.columns([1,1,1,1,1],vertical_alignment="center")
 with col1:
     if st.button("Start",use_container_width=True):
@@ -40,6 +64,9 @@ with col1:
         st.session_state['scarti_rimanenti'] = int(5)
         st.session_state['mani_rimanenti'] = int(5)
         st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
+    if st.button("Options",use_container_width=True):
+        show_options()
+        
 with col2:
     subcol1,scubcol2 =st.columns([0.5,0.5])
     with subcol1:
