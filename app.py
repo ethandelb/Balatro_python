@@ -23,31 +23,60 @@ if 'deck' not in st.session_state:
     st.session_state['carte_mano'] = []
     st.session_state['result'] = str()
     st.session_state['punteggio'] = int()
-    st.session_state['scarti_rimanenti'] = int(5)
-    st.session_state['mani_rimanenti'] = int(5)
     st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
-
-if "num_mazzo" not in st.session_state:
+    st.session_state['soldi'] = 4
     st.session_state.num_mazzo = 0
     st.session_state.tipo_mazzo = ["Mazzo blu", "Mazzo verde", "Mazzo giallo", "Mazzo rosso"]
+    if st.session_state.num_mazzo == 0:
+        st.session_state['mani_rimanenti'] = int(6)
+    elif st.session_state.num_mazzo != 0:
+        st.session_state['mani_rimanenti'] = int(5)
+    if st.session_state.num_mazzo == 3:
+        st.session_state['scarti_rimanenti'] = int(6)
+    elif st.session_state.num_mazzo != 3:
+        st.session_state['scarti_rimanenti'] = int(5)
+    if st.session_state.num_mazzo == 2:
+        st.session_state['soldi'] = int(14)
+    elif st.session_state.num_mazzo != 2:
+        st.session_state['soldi'] = int(4)
+    
+             
 
-
+option_subcol1,option_subcol2 = st.columns([0.5,0.5])
+        
 @st.dialog("Impostazioni partita")
 def show_options():
     st.markdown("Scegli un mazzo: ")
     st.write(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
+    immagine_mazzo = 'static/images/{}.png'.format(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
+    if st.session_state.num_mazzo == 0:
+         st.session_state['mani_rimanenti'] = int(6)
+         st.image(immagine_mazzo,caption="Aggiunge una mano extra", width=105)
+    elif st.session_state.num_mazzo != 0:
+        st.session_state['mani_rimanenti'] = int(5)
+    if st.session_state.num_mazzo == 3:
+        st.session_state['scarti_rimanenti'] = int(6)
+        st.image(immagine_mazzo, caption="Aggiunge uno scarto extra", width=105)
+    elif st.session_state.num_mazzo != 3:
+        st.session_state['scarti_rimanenti'] = int(5)
+    if st.session_state.num_mazzo == 2:
+        st.session_state['soldi'] = int(14)
+        st.image(immagine_mazzo, caption="Aggiunge 10 soldi extra", width=105)
+    elif st.session_state.num_mazzo != 2:
+        st.session_state['soldi'] = int(4)
+    if st.session_state.num_mazzo == 1:
+        st.image(immagine_mazzo, caption= "non ricordo cosa faccia", width=105)
     if st.button("->"):
         if st.session_state.num_mazzo < len(st.session_state.tipo_mazzo) - 1:
-            st.session_state.num_mazzo += 1
-            
+            st.session_state.num_mazzo += 1       
     if st.button("<-"):
-         if st.session_state.num_mazzo > 0:
+        if st.session_state.num_mazzo > 0:
             st.session_state.num_mazzo -= 1
-           
-        
-
     
+           
     st.divider()
+    if st.button("Rerun(ricarca per applicare mazzi)"):
+        st.rerun()
 
 
 col1,col2,col3,col4,col5 = st.columns([1,1,1,1,1],vertical_alignment="center")
@@ -204,8 +233,8 @@ with col3:
         else:
             st.header("Non hai più mani inizia una nuova partita")
 with col4:
-    st.header("Punteggio:")
-    st.header(str(st.session_state['punteggio']))
+    st.header("Punteggio:"+ (str(st.session_state['punteggio'])))
+    st.header('Soldi: '+(str(st.session_state['soldi'])))
 
 
     
