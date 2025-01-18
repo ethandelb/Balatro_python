@@ -40,6 +40,13 @@ if 'deck' not in st.session_state:
         st.session_state['soldi'] = int(14)
     elif st.session_state.num_mazzo != 2:
         st.session_state['soldi'] = int(4)
+    #punteggi base
+    #coppia
+    st.session_state['moltiplicatore_base_coppia'] = int(2)
+    st.session_state['Fiche_base_coppia'] = int(10)
+    #doppia coppia
+    st.session_state['Fiche_base_doppiacoppia'] = int(20)
+    
     
              
 
@@ -48,31 +55,49 @@ option_subcol1,option_subcol2 = st.columns([0.5,0.5])
 @st.dialog("Impostazioni partita")
 def show_options():
     st.title("Scegli un mazzo: ")
-    st.write(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
     immagine_mazzo = 'static/images/{}.png'.format(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
-    if st.session_state.num_mazzo == 0:
-         st.session_state['mani_rimanenti'] = int(6)
-         st.image(immagine_mazzo,caption="Aggiunge una mano extra", width=105)
-    elif st.session_state.num_mazzo != 0:
-        st.session_state['mani_rimanenti'] = int(5)
-    if st.session_state.num_mazzo == 3:
-        st.session_state['scarti_rimanenti'] = int(6)
-        st.image(immagine_mazzo, caption="Aggiunge uno scarto extra", width=105)
-    elif st.session_state.num_mazzo != 3:
-        st.session_state['scarti_rimanenti'] = int(5)
-    if st.session_state.num_mazzo == 2:
-        st.session_state['soldi'] = int(14)
-        st.image(immagine_mazzo, caption="Aggiunge 10 soldi extra", width=105)
-    elif st.session_state.num_mazzo != 2:
-        st.session_state['soldi'] = int(4)
-    if st.session_state.num_mazzo == 1:
-        st.image(immagine_mazzo, caption= "non ricordo cosa faccia", width=105)
-    if st.button("->"):
-        if st.session_state.num_mazzo < len(st.session_state.tipo_mazzo) - 1:
-            st.session_state.num_mazzo += 1       
-    if st.button("<-"):
-        if st.session_state.num_mazzo > 0:
-            st.session_state.num_mazzo -= 1    
+    st.session_state['scritta_mazzo'] = str(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
+    place_holder =st.empty()
+    
+    place_holder4 = st.empty()
+    place_holder2 = st.empty()
+    place_holder3 = st.empty()
+    with place_holder2:
+        if st.button("->"):
+            if st.session_state.num_mazzo < len(st.session_state.tipo_mazzo) - 1:
+                st.session_state.num_mazzo += 1   
+                immagine_mazzo = 'static/images/{}.png'.format(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
+                st.session_state['scritta_mazzo'] = str(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
+                with place_holder:
+                    st.write(st.session_state['scritta_mazzo'])
+    with place_holder3:
+        if st.button("<-"):
+            if st.session_state.num_mazzo > 0:
+                st.session_state.num_mazzo -= 1
+                immagine_mazzo = 'static/images/{}.png'.format(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
+                st.session_state['scritta_mazzo'] = str(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
+                with place_holder:
+                    st.write(st.session_state['scritta_mazzo'])
+    with place_holder4:
+        if st.session_state.num_mazzo == 0:
+            st.session_state['mani_rimanenti'] = int(6)
+            st.image(immagine_mazzo,caption="Aggiunge una mano extra", width=105)
+        elif st.session_state.num_mazzo != 0:
+            st.session_state['mani_rimanenti'] = int(5)
+        if st.session_state.num_mazzo == 3:
+            st.session_state['scarti_rimanenti'] = int(6)
+            st.image(immagine_mazzo, caption="Aggiunge uno scarto extra", width=105)
+        elif st.session_state.num_mazzo != 3:
+            st.session_state['scarti_rimanenti'] = int(5)
+        if st.session_state.num_mazzo == 2:
+            st.session_state['soldi'] = int(14)
+            st.image(immagine_mazzo, caption="Aggiunge 10 soldi extra", width=105)
+        elif st.session_state.num_mazzo != 2:
+            st.session_state['soldi'] = int(4)
+        if st.session_state.num_mazzo == 1:
+            st.image(immagine_mazzo, caption= "non ricordo cosa faccia", width=105)
+    
+        
     st.divider()
     if st.button("Rerun(ricarca per applicare mazzi)"):
         st.rerun()
@@ -182,6 +207,7 @@ def riconoscimento_mani(carte_mano):
     is_fourofakind = 4 in value_counts.values()
     is_fullhouse = sorted(value_counts.values()) == [2,3]
     is_doublepair = list(value_counts.values()).count(2) == 2
+    is_highcard = len(set(scala_carte)) > 0
 
     if is_royal:
         st.session_state['result'] = "Hai fatto scala reale!"
@@ -204,12 +230,27 @@ def riconoscimento_mani(carte_mano):
     elif is_theeofakind:
         st.session_state['result'] = "Hai fatto tris!"
         st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 50
-    elif is_doublepair:
+    elif is_doublepair: 
+        sorted(value_counts.values())
+        st.session_state['carte_mano'] = [card for card in carte_mano if list(value_counts.values()).count(2) == 2]
         st.session_state['result'] = "Hai fatto doppia coppia!"
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 40
+        for card in st.session_state['carte_mano']:
+            n= 0
+            st.session_state['Fiche_base_doppiacoppia'] = st.session_state['Fiche_base_doppiacoppia'] + card.card_scores[n]
+            n +=1
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_coppia'] * st.session_state['Fiche_base_doppiacoppia'])
     elif is_pair:
+        sorted(value_counts.values())
+        st.session_state['carte_mano'] = [card for card in carte_mano if value_counts[card.card_scores[1]] == 2]
         st.session_state['result'] = "Hai fatto coppia!"
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 30
+        for card in st.session_state['carte_mano']:
+            n= 0
+            st.session_state['Fiche_base_coppia'] = st.session_state['Fiche_base_coppia'] + card.card_scores[n]
+            n +=1
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_coppia'] * st.session_state['Fiche_base_coppia'])
+    elif is_highcard: 
+        st.session_state['result'] = "Hai fatto carta alta!"
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 5 + card.card_scores[1] 
     # else:
     #     st.session_state['result'] = "Hai fatto carta alta!"
     #     st.session_state['punteggio'] = st.session_state.get('punteggio',0) + card.card_scores[1]
@@ -235,13 +276,15 @@ with col3:
             st.session_state['mani_rimanenti'] = st.session_state.get('mani_rimanenti',0) -1
             st.session_state['result'] = str()
             st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
-            time.sleep(1)
+            time.sleep(2)
+            st.session_state['Fiche_base_coppia'] = int(10)
             st.rerun()
         else:
             st.header("Non hai più mani inizia una nuova partita")
 with col4:
     st.header("Punteggio:"+ (str(st.session_state['punteggio']))+"/"+(str(st.session_state['punteggio da fare'])))
     st.header('Soldi: '+(str(st.session_state['soldi'])))
+
 
 
     
