@@ -45,8 +45,30 @@ if 'deck' not in st.session_state:
     st.session_state['moltiplicatore_base_coppia'] = int(2)
     st.session_state['Fiche_base_coppia'] = int(10)
     #doppia coppia
+    st.session_state['moltiplicatore_base_doppiacoppia'] = int(2)
     st.session_state['Fiche_base_doppiacoppia'] = int(20)
-    
+    #tris
+    st.session_state['Fiche_base_tris'] = int(30)
+    st.session_state['moltiplicatore_base_tris'] = int(3)
+    #straight
+    st.session_state['moltiplicatore_base_straight'] = int(4)
+    st.session_state['Fiche_base_straight'] = int(30)
+    #colore
+    st.session_state['Fiche_base_colore'] = int(35)
+    st.session_state['moltiplicatore_base_colore'] = int(4)
+    #fullhouse
+    st.session_state['Fiche_base_fullhouse'] = int(40)
+    st.session_state['moltiplicatore_base_fullhouse'] = int(4)
+    #fourofakind
+    st.session_state['Fiche_base_four'] = int(60)
+    st.session_state['moltiplicatore_base_four'] = int(7)
+    #straightflush
+    st.session_state['Fiche_base_straightflush'] = int(100)
+    st.session_state['moltiplicatore_base_straightflush'] = int(8)
+    #royal
+    st.session_state['Fiche_base_royal'] = int(100)
+    st.session_state['moltiplicatore_base_royal'] = int(8)
+
     
              
 
@@ -122,6 +144,28 @@ with col1:
         st.session_state['scarti_rimanenti'] = int(5)
         st.session_state['mani_rimanenti'] = int(5)
         st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
+        #punteggi base
+        #coppia
+        st.session_state['moltiplicatore_base_coppia'] = int(2)
+        st.session_state['Fiche_base_coppia'] = int(10)
+        #doppia coppia
+        st.session_state['moltiplicatore_base_doppiacoppia'] = int(2)
+        st.session_state['Fiche_base_doppiacoppia'] = int(20)
+        #tris
+        st.session_state['Fiche_base_tris'] = int(30)
+        st.session_state['moltiplicatore_base_tris'] = int(3)
+        #straight
+        st.session_state['moltiplicatore_base_straight'] = int(4)
+        st.session_state['Fiche_base_straight'] = int(30)
+        #colore
+        st.session_state['Fiche_base_colore'] = int(35)
+        st.session_state['moltiplicatore_base_colore'] = int(4)
+        #fullhouse
+        st.session_state['Fiche_base_fullhouse'] = int(40)
+        st.session_state['moltiplicatore_base_fullhouse'] = int(4)
+        #fourofakind
+        st.session_state['Fiche_base_four'] = int(60)
+        st.session_state['moltiplicatore_base_four'] = int(7) 
     if st.button("Options",use_container_width=True):
         show_options()
     if st.session_state['punteggio'] >= st.session_state['punteggio da fare']:
@@ -211,34 +255,47 @@ def riconoscimento_mani(carte_mano):
 
     if is_royal:
         st.session_state['result'] = "Hai fatto scala reale!"
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0)+ 400
+        for card in st.session_state['carte_mano']:
+            st.session_state['Fiche_base_royal'] += card.card_scores[1]
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_royal'] * st.session_state['Fiche_base_royal'])
     elif is_straightflush:
         st.session_state['result'] = "Hai fatto scala colore!"
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 300
+        for card in st.session_state['carte_mano']:
+            st.session_state['Fiche_base_straightflush'] += card.card_scores[1]
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_straightflush'] * st.session_state['Fiche_base_straightflush'])
     elif is_fourofakind:
         st.session_state['result'] = "Hai fatto poker!"
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 170
+        st.session_state['carte_mano'] = [card for card in st.session_state['carte_mano'] if value_counts[card.card_scores[1]] == 4]
+        for card in st.session_state['carte_mano']:
+            st.session_state['Fiche_base_four'] += card.card_scores[1]
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_four'] * st.session_state['Fiche_base_four'])
     elif is_fullhouse:
         st.session_state['result'] = "Hai fatto full house!"
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 150
+        for card in st.session_state['carte_mano']:
+            st.session_state['Fiche_base_fullhouse'] += card.card_scores[1]
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_fullhouse'] * st.session_state['Fiche_base_fullhouse'])
     elif is_flush:
         st.session_state['result'] = "Hai fatto flush!"
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 125
+        for card in st.session_state['carte_mano']:
+            st.session_state['Fiche_base_colore'] += card.card_scores[1]
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_colore'] * st.session_state['Fiche_base_colore'])
     elif is_straight:
         st.session_state['result'] = "Hai fatto scala!"
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 100
+        for card in st.session_state['carte_mano']:
+            st.session_state['Fiche_base_tris'] += card.card_scores[1]
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_straight'] * st.session_state['Fiche_base_straight'])
     elif is_theeofakind:
         st.session_state['result'] = "Hai fatto tris!"
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 50
-    elif is_doublepair: 
-        sorted(value_counts.values())
-        st.session_state['carte_mano'] = [card for card in carte_mano if list(value_counts.values()).count(2) == 2]
-        st.session_state['result'] = "Hai fatto doppia coppia!"
+        st.session_state['carte_mano'] = [card for card in st.session_state['carte_mano'] if value_counts[card.card_scores[1]] == 3]
         for card in st.session_state['carte_mano']:
-            n= 0
-            st.session_state['Fiche_base_doppiacoppia'] = st.session_state['Fiche_base_doppiacoppia'] + card.card_scores[n]
-            n +=1
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_coppia'] * st.session_state['Fiche_base_doppiacoppia'])
+            st.session_state['Fiche_base_tris'] += card.card_scores[1]
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_tris'] * st.session_state['Fiche_base_tris'])
+    elif is_doublepair:
+        st.session_state['result'] = "Hai fatto doppia coppia!"
+        st.session_state['carte_mano'] = [card for card in st.session_state['carte_mano'] if value_counts[card.card_scores[1]] == 2]
+        for card in st.session_state['carte_mano']:
+            st.session_state['Fiche_base_doppiacoppia'] += card.card_scores[1]
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_doppiacoppia'] * st.session_state['Fiche_base_doppiacoppia'])
     elif is_pair:
         sorted(value_counts.values())
         st.session_state['carte_mano'] = [card for card in carte_mano if value_counts[card.card_scores[1]] == 2]
