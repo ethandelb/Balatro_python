@@ -117,9 +117,7 @@ def show_options():
         elif st.session_state.num_mazzo != 2:
             st.session_state['soldi'] = int(4)
         if st.session_state.num_mazzo == 1:
-            st.image(immagine_mazzo, caption= "non ricordo cosa faccia", width=105)
-    
-        
+            st.image(immagine_mazzo, caption= "non ricordo cosa faccia", width=105)   
     st.divider()
     if st.button("Rerun(ricarca per applicare mazzi)"):
         st.rerun()
@@ -169,7 +167,8 @@ with col1:
     if st.button("Options",use_container_width=True):
         show_options()
     if st.session_state['punteggio'] >= st.session_state['punteggio da fare']:
-        st.button("Shop",use_container_width=True)
+        if st.button("Shop",use_container_width=True):
+            show_shop()
 
 
 with col2:
