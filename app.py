@@ -26,6 +26,7 @@ if 'deck' not in st.session_state:
     st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
     st.session_state['soldi'] = 4
     st.session_state['punteggio da fare'] = int(300)
+    st.session_state['show_blind'] = False
     st.session_state.num_mazzo = 0
     st.session_state.tipo_mazzo = ["Mazzo blu", "Mazzo verde", "Mazzo giallo", "Mazzo rosso"]
     if st.session_state.num_mazzo == 0:
@@ -81,50 +82,69 @@ def show_options():
     st.session_state['scritta_mazzo'] = str(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
     place_holder =st.empty()
     
-    place_holder4 = st.empty()
-    place_holder2 = st.empty()
-    place_holder3 = st.empty()
-    with place_holder2:
-        if st.button("->"):
+
+    i1,colo1,colo2,colo3,i2=st.columns([0.2,0.2,0.1,0.2,0.2])
+    i3,colo5,i7=st.columns([0.2,0.1,0.2])
+    colmazzo1,colmazzo2,colmazzo3 = st.columns([0.4,0.33,0.33],)
+    with st.container():
+        if colo3.button("->",use_container_width=True):
             if st.session_state.num_mazzo < len(st.session_state.tipo_mazzo) - 1:
                 st.session_state.num_mazzo += 1   
                 immagine_mazzo = 'static/images/{}.png'.format(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
                 st.session_state['scritta_mazzo'] = str(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
                 with place_holder:
-                    st.write(st.session_state['scritta_mazzo'])
-    with place_holder3:
-        if st.button("<-"):
+                    colo5.write(st.session_state['scritta_mazzo'])
+        if colo1.button("<-",use_container_width=True):
             if st.session_state.num_mazzo > 0:
                 st.session_state.num_mazzo -= 1
                 immagine_mazzo = 'static/images/{}.png'.format(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
                 st.session_state['scritta_mazzo'] = str(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
                 with place_holder:
-                    st.write(st.session_state['scritta_mazzo'])
-    with place_holder4:
+                    colo5.write(st.session_state['scritta_mazzo'])
+    with st.container():
         if st.session_state.num_mazzo == 0:
             st.session_state['mani_rimanenti'] = int(6)
-            st.image(immagine_mazzo,caption="Aggiunge una mano extra", width=105)
+            colmazzo2.image(immagine_mazzo,caption="Aggiunge una mano extra", width=105)
         elif st.session_state.num_mazzo != 0:
             st.session_state['mani_rimanenti'] = int(5)
         if st.session_state.num_mazzo == 3:
             st.session_state['scarti_rimanenti'] = int(6)
-            st.image(immagine_mazzo, caption="Aggiunge uno scarto extra", width=105)
+            colmazzo2.image(immagine_mazzo, caption="Aggiunge uno scarto extra", width=105)
         elif st.session_state.num_mazzo != 3:
             st.session_state['scarti_rimanenti'] = int(5)
         if st.session_state.num_mazzo == 2:
             st.session_state['soldi'] = int(14)
-            st.image(immagine_mazzo, caption="Aggiunge 10 soldi extra", width=105)
+            colmazzo2.image(immagine_mazzo, caption="Aggiunge 10 soldi extra", width=105)
         elif st.session_state.num_mazzo != 2:
             st.session_state['soldi'] = int(4)
         if st.session_state.num_mazzo == 1:
-            st.image(immagine_mazzo, caption= "non ricordo cosa faccia", width=105)   
+           colmazzo2.image(immagine_mazzo, caption= "non ricordo cosa faccia", width=105)   
     st.divider()
     if st.button("Rerun(ricarca per applicare mazzi)"):
         st.rerun()
 
+@st.dialog("Puntate")
+def show_blinds():
+    small_blindcol,big_blincol,boss_blindcol = st.columns([0.33,0.33,0.33])
+    with st.container():
+        small_blindcol.title("Piccolo buio")
+        big_blincol.title("Grande buio")
+        boss_blindcol.title("Boss")
+
+
+
 @st.dialog("Negozio")
 def show_shop():
     st.title("Scegli cosa comprare: ")
+    colonna1,colonna2,colonna3 = st.columns([0.3,0.5,0.5])
+    with st.container():
+       if colonna1.button("Next run"):
+        st.session_state['show_blind'] = True
+        st.rerun()
+        
+if st.session_state['show_blind']:
+    show_blinds()    
+
 
 
 
@@ -138,7 +158,7 @@ with col1:
         st.session_state['selected_cards'] = []
         st.session_state['carte_mano'] = []
         st.session_state['result'] = str()
-        st.session_state['punteggio'] = int()
+        st.session_state['punteggio'] = int(300)
         st.session_state['scarti_rimanenti'] = int(5)
         st.session_state['mani_rimanenti'] = int(5)
         st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
