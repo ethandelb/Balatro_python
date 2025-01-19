@@ -1,6 +1,8 @@
 import streamlit as st
 from modules.card import Card
 from modules.deck import Deck
+from modules.planets import Planet
+from modules.shop_deck import Shop_deck
 import time
 
 st.set_page_config(layout="wide",)
@@ -10,13 +12,16 @@ carte_mano = 8
 massimo_mani = 5
 massimo_scarti = 5
 tipi_mazzi = ("Verde","Rosso","Giallo","Blu")
-#Scarti = 4
+st.session_state['punteggio_base'] = 300
 #Mani_giocabili = 5
 #grandezza_mano = 5
 
 if 'deck' not in st.session_state:
     number_of_decks = 1
     st.session_state['deck'] = Deck(number_of_decks)
+    st.session_state['shop_cards'] = Shop_deck(number_of_decks)
+    st.session_state['shop_cards'].shuffle()
+    st.session_state['shop_cards_shown'] = []
     st.session_state['deck'].shuffle()
     st.session_state['drawn_cards'] = []
     st.session_state['selected_cards'] = []
@@ -25,8 +30,13 @@ if 'deck' not in st.session_state:
     st.session_state['punteggio'] = int()
     st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
     st.session_state['soldi'] = 4
-    st.session_state['punteggio da fare'] = int(300)
+    st.session_state['punteggio da fare'] = int(st.session_state['punteggio_base'])
     st.session_state['show_blind'] = False
+    st.session_state['livello'] = 1
+    st.session_state['ante'] = 1
+    st.session_state['divisore_punteggio'] = 1.5
+    st.session_state['vittoria'] = False
+    st.session_state.show_dialog = False
     st.session_state.num_mazzo = 0
     st.session_state.tipo_mazzo = ["Mazzo blu", "Mazzo verde", "Mazzo giallo", "Mazzo rosso"]
     if st.session_state.num_mazzo == 0:
@@ -68,10 +78,9 @@ if 'deck' not in st.session_state:
     st.session_state['moltiplicatore_base_straightflush'] = int(8)
     #royal
     st.session_state['Fiche_base_royal'] = int(100)
-    st.session_state['moltiplicatore_base_royal'] = int(8)
+    st.session_state['moltiplicatore_base_royal'] = int(8)  
+           
 
-    
-             
 
 option_subcol1,option_subcol2 = st.columns([0.5,0.5])
         
@@ -81,10 +90,8 @@ def show_options():
     immagine_mazzo = 'static/images/{}.png'.format(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
     st.session_state['scritta_mazzo'] = str(st.session_state.tipo_mazzo[st.session_state.num_mazzo])
     place_holder =st.empty()
-    
-
     i1,colo1,colo2,colo3,i2=st.columns([0.2,0.2,0.1,0.2,0.2])
-    i3,colo5,i7=st.columns([0.2,0.1,0.2])
+    i3,colo5,i7=st.columns([0.23,0.15,0.2])
     colmazzo1,colmazzo2,colmazzo3 = st.columns([0.4,0.33,0.33],)
     with st.container():
         if colo3.button("->",use_container_width=True):
@@ -123,6 +130,8 @@ def show_options():
     if st.button("Rerun(ricarca per applicare mazzi)"):
         st.rerun()
 
+
+
 @st.dialog("Puntate")
 def show_blinds():
     small_blindcol,big_blincol,boss_blindcol = st.columns([0.33,0.33,0.33])
@@ -132,17 +141,47 @@ def show_blinds():
         boss_blindcol.title("Boss")
 
 
-
 @st.dialog("Negozio")
 def show_shop():
     st.title("Scegli cosa comprare: ")
     colonna1,colonna2,colonna3 = st.columns([0.3,0.5,0.5])
     with st.container():
-       if colonna1.button("Next run"):
-        st.session_state['show_blind'] = True
-        st.rerun()
+        if colonna1.button("Next run"):
+            number_of_decks = 1
+            st.session_state['punteggio'] = 0
+            st.session_state['show_blind'] = True
+            st.session_state['punteggio da fare'] = (st.session_state['punteggio_base'] * st.session_state['ante']*st.session_state['livello'])/ st.session_state['divisore_punteggio']
+            st.session_state['deck'] = Deck(number_of_decks)
+            st.session_state['deck'].shuffle()
+            st.session_state['drawn_cards'] = []
+            st.session_state['selected_cards'] = []
+            st.session_state['carte_mano'] = []
+            st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
+            st.session_state.tipo_mazzo = ["Mazzo blu", "Mazzo verde", "Mazzo giallo", "Mazzo rosso"]
+            if st.session_state.num_mazzo == 0:
+                st.session_state['mani_rimanenti'] = int(6)
+            elif st.session_state.num_mazzo != 0:
+                st.session_state['mani_rimanenti'] = int(5)
+            if st.session_state.num_mazzo == 3:
+                st.session_state['scarti_rimanenti'] = int(6)
+            elif st.session_state.num_mazzo != 3:
+                st.session_state['scarti_rimanenti'] = int(5)
+            if st.session_state.num_mazzo == 2:
+                st.session_state['soldi'] = int(14)
+            elif st.session_state.num_mazzo != 2:
+                st.session_state['soldi'] = int(4)
+            st.rerun()
+        #carte shop
+        
+        carte_negozio = st.session_state['shop_cards'].draw_shop()
+        st.session_state['shop_cards_shown'].append(carte_negozio)
+
+        st.image(carte_negozio.card_image ,use_container_width=True)
+
+
         
 if st.session_state['show_blind']:
+    st.session_state['show_blind'] = False
     show_blinds()    
 
 
@@ -162,6 +201,7 @@ with col1:
         st.session_state['scarti_rimanenti'] = int(5)
         st.session_state['mani_rimanenti'] = int(5)
         st.session_state['carte_rimanenti'] = len(st.session_state['deck'].cards)
+        st.session_state['show_blind'] = False
         #punteggi base
         #coppia
         st.session_state['moltiplicatore_base_coppia'] = int(2)
@@ -187,8 +227,17 @@ with col1:
     if st.button("Options",use_container_width=True):
         show_options()
     if st.session_state['punteggio'] >= st.session_state['punteggio da fare']:
-        if st.button("Shop",use_container_width=True):
-            show_shop()
+        st.session_state['vittoria'] = True
+        if st.session_state['livello'] == 3:
+            st.session_state['livello'] = 1
+            st.session_state['ante'] += 1
+            st.session_state['punteggio_base'] += 300
+        else:
+            st.session_state['livello'] += 1
+        show_shop()
+
+         
+            
 
 
 with col2:
@@ -358,6 +407,8 @@ with col3:
         else:
             st.header("Non hai più mani inizia una nuova partita")
 with col4:
+    st.header("livello: " + str(st.session_state['livello']))
+    st.header("Ante: "+ str(st.session_state['ante']))
     st.header("Punteggio:"+ (str(st.session_state['punteggio']))+"/"+(str(st.session_state['punteggio da fare'])))
     st.header('Soldi: '+(str(st.session_state['soldi'])))
 
