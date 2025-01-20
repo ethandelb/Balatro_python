@@ -1,7 +1,7 @@
 import random
 from modules.card import Card
 from modules import planets
-planet = ("Earth", "Jupiter", 'Mars','Neptune', 'Mercury','Saturn',)
+planet = ("Earth", "Jupiter", 'Mars','Neptune', 'Mercury','Saturn','Uranus','Venus')
 
 class Shop_deck:
     def __init__(self, number_of_decks):
@@ -13,19 +13,22 @@ class Shop_deck:
 
 
     def create(self, number_of_decks):
-        decks = [planets for name in planet for shop_cards in range(number_of_decks) ]
-        self.shopcards.extend(decks)
-
+       for _ in range(number_of_decks):
+            for name in planet:
+                new_card = planets.Planet(name)
+                self.shopcards.append(new_card)
+    
     def shuffle(self):
         self.shopcards = random.sample(self.shopcards, len(self.shopcards))
 
+
     def draw_shop(self):
-        if len(self.shopcards) == 0:
-           self.create(self.number_of_decks) 
-        drawn_card = self.shopcards[0] 
+        if not self.shopcards:
+            self.create(self.number_of_decks) 
+        shop_drawn_card = self.shopcards[0] 
         self.shopcards.remove(self.shopcards[0])  
         print(len(self.shopcards))
-        return drawn_card
+        return self.shopcards.pop(0)
     
     
 

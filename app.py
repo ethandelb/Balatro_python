@@ -12,16 +12,25 @@ carte_mano = 8
 massimo_mani = 5
 massimo_scarti = 5
 tipi_mazzi = ("Verde","Rosso","Giallo","Blu")
-st.session_state['punteggio_base'] = 300
-#Mani_giocabili = 5
-#grandezza_mano = 5
+st.session_state['punteggio_base'] = 300 
+fiche_extra_pianeti = {"Full_House":25,"Flush":15,"Four_of_a_kind":30,"Straight_Flush":40,"Pair":15,"Straight":30,"Two_pair":20,"Three_of_a_kind": 20}
+mult_extra_pianeti = {"Full_House":2,"Flush":2,"Four_of_a_kind":3,"Straight_Flush":4,"Pair":1,"Straight":3,"Two_pair":1,"Three_of_a_kind": 2}
+
+if 'livello_pianeti' not in st.session_state:
+    st.session_state['livello_pianeti'] = {"Earth":0, "Jupiter":0, 'Mars':0,'Neptune':0, 'Mercury':0,'Saturn':0,'Uranus':0,'Venus':0}
+    st.session_state['Fiche_extra_pianeti'] = {k1: v1 * v2 for (k1, v1), (k2, v2) in zip(fiche_extra_pianeti.items(),st.session_state['livello_pianeti'].items())}
+    st.session_state['mult_extra_pianeti'] = {k1: v1 * v2 for (k1, v1), (k2, v2) in zip(mult_extra_pianeti.items(),st.session_state['livello_pianeti'].items())}
+if 'Fiche_extra_pianeti' not in st.session_state:
+     st.session_state['Fiche_extra_pianeti'] = {k1: v1 * v2 for (k1, v1), (k2, v2) in zip(fiche_extra_pianeti.items(),st.session_state['livello_pianeti'].items())}
+if 'mult_extra_pianeti' not in st.session_state:
+    st.session_state['mult_extra_pianeti'] = {k1: v1 * v2 for (k1, v1), (k2, v2) in zip(mult_extra_pianeti.items(),st.session_state['livello_pianeti'].items())}
 
 if 'deck' not in st.session_state:
     number_of_decks = 1
     st.session_state['deck'] = Deck(number_of_decks)
     st.session_state['shop_cards'] = Shop_deck(number_of_decks)
     st.session_state['shop_cards'].shuffle()
-    st.session_state['shop_cards_shown'] = []
+    #st.session_state['shop_cards_shown'] = []
     st.session_state['deck'].shuffle()
     st.session_state['drawn_cards'] = []
     st.session_state['selected_cards'] = []
@@ -51,7 +60,8 @@ if 'deck' not in st.session_state:
         st.session_state['soldi'] = int(14)
     elif st.session_state.num_mazzo != 2:
         st.session_state['soldi'] = int(4)
-    #punteggi base
+    #punteggi
+    
     #coppia
     st.session_state['moltiplicatore_base_coppia'] = int(2)
     st.session_state['Fiche_base_coppia'] = int(10)
@@ -172,12 +182,54 @@ def show_shop():
                 st.session_state['soldi'] = int(4)
             st.rerun()
         #carte shop
-        
-        carte_negozio = st.session_state['shop_cards'].draw_shop()
-        st.session_state['shop_cards_shown'].append(carte_negozio)
+        if 'shop_cards_shown' not in st.session_state:
+            st.session_state['shop_cards_shown'] = [st.session_state['shop_cards'].draw_shop(),
+            st.session_state['shop_cards'].draw_shop()
+            ]
+            
+        # st.session_state['shop_cards_shown1'].append(carte_negozio1)
+        # st.session_state['shop_cards_shown1'].append(carte_negozio2)
 
-        st.image(carte_negozio.card_image ,use_container_width=True)
+        if len(st.session_state['shop_cards_shown']) > 0:
+            card1 = st.session_state['shop_cards_shown'][0]
+            colonna2.markdown("Costo: " + str(card1.value) +"$")
+            if colonna2.button("Compra carta", key="buy_card_1"):
+                if st.session_state['soldi'] >= card1.value:
+                    st.session_state['soldi'] = st.session_state['soldi'] - card1.value
+                    st.session_state['shop_cards_shown'][0] = None
+                    st.session_state['livello_pianeti'] = {"Earth":0, "Jupiter":0, 'Mars':0,'Neptune':0, 'Mercury':0,'Saturn':0,'Uranus':0,'Venus':0}
+                    Planet.level_hands(card1)
+                    st.session_state['Fiche_extra_pianeti'] = {k1: v1 * v2 for (k1, v1), (k2, v2) in zip(fiche_extra_pianeti.items(),st.session_state['livello_pianeti'].items())}
+                    st.session_state['mult_extra_pianeti'] = {k1: v1 * v2 for (k1, v1), (k2, v2) in zip(mult_extra_pianeti.items(),st.session_state['livello_pianeti'].items())}
+                    st.markdown(st.session_state['mult_extra_pianeti'])
+                    st.markdown(st.session_state['Fiche_extra_pianeti'])
+            if st.session_state['shop_cards_shown'][0] ==  None:   
+                card1 = 'static/images/Empty_frame.jpg'
+                colonna2.image(card1, use_container_width=True)
+            else:
+                card1 = st.session_state['shop_cards_shown'][0]
+                colonna2.image(card1.card_image, use_container_width=True)      
 
+        if len(st.session_state['shop_cards_shown']) > 1:
+            card2 = st.session_state['shop_cards_shown'][1]
+            colonna3.markdown("Costo: " + str(card2.value) +"$")
+            if colonna3.button("Compra carta", key="buy_card_2"):
+                if st.session_state['soldi'] >= card2.value:
+                    st.session_state['soldi'] = st.session_state['soldi'] - card2.value
+                    st.session_state['shop_cards_shown'][1] = None
+                    st.session_state['livello_pianeti'] = {"Earth":0, "Jupiter":0, 'Mars':0,'Neptune':0, 'Mercury':0,'Saturn':0,'Uranus':0,'Venus':0}
+                    Planet.level_hands(card2)
+                    st.session_state['Fiche_extra_pianeti'] = {k1: v1 * v2 for (k1, v1), (k2, v2) in zip(fiche_extra_pianeti.items(),st.session_state['livello_pianeti'].items())}
+                    st.session_state['mult_extra_pianeti'] = {k1: v1 * v2 for (k1, v1), (k2, v2) in zip(mult_extra_pianeti.items(),st.session_state['livello_pianeti'].items())}
+            if st.session_state['shop_cards_shown'][1] ==  None:
+                card2 = 'static/images/Empty_frame.jpg'
+                colonna3.image(card2, use_container_width=True)
+            else:
+                card2 = st.session_state['shop_cards_shown'][1]
+                colonna3.image(card2.card_image, use_container_width=True)
+             
+        st.session_state['shop_cards_shown'] = [
+            card for card in st.session_state['shop_cards_shown'] if card is not None]
 
         
 if st.session_state['show_blind']:
@@ -224,8 +276,9 @@ with col1:
         #fourofakind
         st.session_state['Fiche_base_four'] = int(60)
         st.session_state['moltiplicatore_base_four'] = int(7) 
-    if st.button("Options",use_container_width=True):
-        show_options()
+    if st.session_state['livello'] == 1 and st.session_state['ante'] == 1:
+        if st.button("Options",use_container_width=True):
+            show_options()
     if st.session_state['punteggio'] >= st.session_state['punteggio da fare']:
         st.session_state['vittoria'] = True
         if st.session_state['livello'] == 3:
@@ -330,40 +383,40 @@ def riconoscimento_mani(carte_mano):
         st.session_state['result'] = "Hai fatto scala colore!"
         for card in st.session_state['carte_mano']:
             st.session_state['Fiche_base_straightflush'] += card.card_scores[1]
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_straightflush'] * st.session_state['Fiche_base_straightflush'])
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + ((st.session_state['moltiplicatore_base_straightflush']+st.session_state['mult_extra_pianeti']["Straight_flush"]) * (st.session_state['Fiche_base_straightflush']+ + st.session_state['Fiche_extra_pianeti']["Straight_flush"]))
     elif is_fourofakind:
         st.session_state['result'] = "Hai fatto poker!"
         st.session_state['carte_mano'] = [card for card in st.session_state['carte_mano'] if value_counts[card.card_scores[1]] == 4]
         for card in st.session_state['carte_mano']:
             st.session_state['Fiche_base_four'] += card.card_scores[1]
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_four'] * st.session_state['Fiche_base_four'])
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + ((st.session_state['moltiplicatore_base_four']+st.session_state['mult_extra_pianeti']["Four_of_a_kind"]) * (st.session_state['Fiche_base_four']+st.session_state['Fiche_extra_pianeti']["Four_of_a_kind"]))
     elif is_fullhouse:
         st.session_state['result'] = "Hai fatto full house!"
         for card in st.session_state['carte_mano']:
             st.session_state['Fiche_base_fullhouse'] += card.card_scores[1]
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_fullhouse'] * st.session_state['Fiche_base_fullhouse'])
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + ((st.session_state['moltiplicatore_base_fullhouse'] +st.session_state['mult_extra_pianeti']["Full_House"])* (st.session_state['Fiche_base_fullhouse']+st.session_state['Fiche_extra_pianeti']["Full_House"]))
     elif is_flush:
         st.session_state['result'] = "Hai fatto flush!"
         for card in st.session_state['carte_mano']:
             st.session_state['Fiche_base_colore'] += card.card_scores[1]
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_colore'] * st.session_state['Fiche_base_colore'])
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + ((st.session_state['moltiplicatore_base_colore']+st.session_state['mult_extra_pianeti']["Flush"]) * (st.session_state['Fiche_base_colore']+st.session_state['Fiche_extra_pianeti']["Flush"]))
     elif is_straight:
         st.session_state['result'] = "Hai fatto scala!"
         for card in st.session_state['carte_mano']:
             st.session_state['Fiche_base_tris'] += card.card_scores[1]
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_straight'] * st.session_state['Fiche_base_straight'])
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + ((st.session_state['moltiplicatore_base_straight']+st.session_state['mult_extra_pianeti']["Straight"]) * (st.session_state['Fiche_base_straight']+st.session_state['Fiche_extra_pianeti']["Straight"]))
     elif is_theeofakind:
         st.session_state['result'] = "Hai fatto tris!"
         st.session_state['carte_mano'] = [card for card in st.session_state['carte_mano'] if value_counts[card.card_scores[1]] == 3]
         for card in st.session_state['carte_mano']:
             st.session_state['Fiche_base_tris'] += card.card_scores[1]
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_tris'] * st.session_state['Fiche_base_tris'])
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + ((st.session_state['moltiplicatore_base_tris']+st.session_state['mult_extra_pianeti']["Three_of_a_kind"]) * (st.session_state['Fiche_base_tris']+st.session_state['Fiche_extra_pianeti']["Three_of_a_kind"]))
     elif is_doublepair:
         st.session_state['result'] = "Hai fatto doppia coppia!"
         st.session_state['carte_mano'] = [card for card in st.session_state['carte_mano'] if value_counts[card.card_scores[1]] == 2]
         for card in st.session_state['carte_mano']:
             st.session_state['Fiche_base_doppiacoppia'] += card.card_scores[1]
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_doppiacoppia'] * st.session_state['Fiche_base_doppiacoppia'])
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + ((st.session_state['moltiplicatore_base_doppiacoppia']+st.session_state['mult_extra_pianeti']["Two_Pair"]) * (st.session_state['Fiche_base_doppiacoppia']+st.session_state['Fiche_extra_pianeti']["Two_Pair"]))
     elif is_pair:
         sorted(value_counts.values())
         st.session_state['carte_mano'] = [card for card in carte_mano if value_counts[card.card_scores[1]] == 2]
@@ -372,7 +425,7 @@ def riconoscimento_mani(carte_mano):
             n= 0
             st.session_state['Fiche_base_coppia'] = st.session_state['Fiche_base_coppia'] + card.card_scores[n]
             n +=1
-        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + (st.session_state['moltiplicatore_base_coppia'] * st.session_state['Fiche_base_coppia'])
+        st.session_state['punteggio'] = st.session_state.get('punteggio',0) + ((st.session_state['moltiplicatore_base_coppia']+st.session_state['mult_extra_pianeti']["Pair"]) * (st.session_state['Fiche_base_coppia']+st.session_state['mult_extra_pianeti']["Pair"]))
     elif is_highcard: 
         st.session_state['result'] = "Hai fatto carta alta!"
         st.session_state['punteggio'] = st.session_state.get('punteggio',0) + 5 + card.card_scores[1] 
